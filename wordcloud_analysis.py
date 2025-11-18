@@ -1,9 +1,12 @@
 from collections import Counter
 from konlpy.tag import Okt
 from wordcloud import WordCloud
+import matplotlib
+matplotlib.use("Agg")  # 화면에 띄우지 않고 파일로 저장만
 import matplotlib.pyplot as plt
 
-def generate_wordcloud(df, text_col, save_path=None):
+
+def generate_wordcloud(df, text_col, save_dir=None):
 
     okt = Okt()
     # 모든 댓글 명사 추출
@@ -20,4 +23,4 @@ def generate_wordcloud(df, text_col, save_path=None):
     plt.figure(figsize=(10,5))
     plt.imshow(wc, interpolation='bilinear')
     plt.axis('off')
-    plt.savefig(save_path, bbox_inches='tight')
+    plt.savefig(save_dir+"/wordcloud.png", bbox_inches='tight')

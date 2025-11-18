@@ -1,11 +1,12 @@
 {
-  "CSV_INPUT": "data/박근혜탄핵_네이버뉴스_댓글.csv",
+  "EXCEL_PATH": "data/박근혜탄핵_네이버뉴스.xlsx",
+  "COMMENT_CSV": "data/박근혜탄핵_네이버뉴스_댓글.csv",
   "CSV_OUTPUT": "data/박근혜탄핵_네이버뉴스_댓글_감정분석.csv",
   "COMMENT_COL": "comment",
   "MODEL_NAME": "Jinuuuu/KoELECTRA_fine_tunning_emotion",
   "START_DATE": "2017-03-10",
   "WEEKS": 4,
-  "DO_EMOTION_ANALYSIS": false,
+  "DO_EMOTION_ANALYSIS": true,
   "DO_WORDCLOUD": true,
-  "PLOT_DIR": "plots/박근혜"
+  "PLOT_DIR": "plots/박근혜1"
 }
