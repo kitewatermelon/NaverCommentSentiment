@@ -30,13 +30,12 @@ async def scrape_comments_from_url(context, url, retries=2):
             await page.goto(url, timeout=20000)
             await page.wait_for_selector("ul.u_cbox_list, span.u_cbox_contents_none", timeout=10000)
 
-            # 기사 제목 추출
-            title_el = await page.query_selector(".media_end_head_info_original_article_text")
-            title = (await title_el.inner_text()).strip() if title_el else "unknown"
+            # 기사 제목 및 언론사 추출 (meta 태그 사용)
+            title_el = await page.query_selector('meta[name="twitter:title"]')
+            title = (await title_el.get_attribute("content")).strip() if title_el else "unknown"
 
-            # 언론사 추출
-            press_el = await page.query_selector(".feed_title_point")
-            press = (await press_el.inner_text()).strip() if press_el else "unknown"
+            press_el = await page.query_selector('meta[name="twitter:creator"]')
+            press = (await press_el.get_attribute("content")).strip() if press_el else "unknown"
 
             news_id = extract_news_id(url)
             article = {"news_id": news_id, "title": title, "press": press, "url": url}
