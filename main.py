@@ -19,6 +19,7 @@ def main(config_path):
         config = json.load(f)
 
     EXCEL_PATH = config["EXCEL_PATH"]
+    ARTICLE_CSV = config["ARTICLE_CSV"]
     COMMENT_CSV = config["COMMENT_CSV"]
     CSV_OUTPUT = config["CSV_OUTPUT"]
     COMMENT_COL = config["COMMENT_COL"]
@@ -35,7 +36,12 @@ def main(config_path):
     # 댓글 수집 (엑셀 → CSV)
     # ============================================================
     async def scrape_comments():
-        await scrape_comments_from_excel_parallel_to_csv(EXCEL_PATH, output_csv=COMMENT_CSV, max_concurrency=10)
+        await scrape_comments_from_excel_parallel_to_csv(
+            EXCEL_PATH,
+            articles_csv=ARTICLE_CSV,
+            comments_csv=COMMENT_CSV,
+            max_concurrency=3
+        )
 
     if not Path(COMMENT_CSV).exists():
         print(f"❗ 댓글 CSV가 없어 엑셀에서 수집합니다: {EXCEL_PATH}")
@@ -88,7 +94,6 @@ def main(config_path):
     # ============================================================
     if DO_WORDCLOUD:
         generate_wordcloud(df_filtered, COMMENT_COL, save_dir=PLOT_DIR)
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
