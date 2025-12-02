@@ -45,7 +45,7 @@ async def scrape_comments_from_url(context, url, retries=2):
             no_comment = await page.query_selector("span.u_cbox_contents_none")
             if no_comment and "등록된 댓글이 없습니다." in (await no_comment.inner_text()):
                 await page.close()
-                return article, []
+                return None, None  # 댓글 없으면 article도 저장 안함
 
             # "더보기" 클릭 반복
             while True:
@@ -85,6 +85,8 @@ async def scrape_comments_from_url(context, url, retries=2):
                     continue
 
             await page.close()
+            if not comments:
+                return None, None  # 댓글 없으면 article도 저장 안함
             return article, comments
 
         except Exception as e:
@@ -95,7 +97,7 @@ async def scrape_comments_from_url(context, url, retries=2):
 
     # 모든 재시도 실패 시 빈 데이터
     news_id = extract_news_id(url)
-    return {"news_id": news_id, "title": "unknown", "press": "unknown", "url": url}, []
+    return None, None
 
 # -------------------------
 # 엑셀 기반 병렬 처리 + CSV 저장
@@ -124,10 +126,10 @@ async def scrape_comments_from_excel_parallel_to_csv(excel_path, articles_csv, c
 
     for coro in tqdm_asyncio.as_completed(tasks):
         article, comments = await coro
-        if article is None:
-            continue  # entertain.naver.com URL은 CSV에 저장 안함
+        if article is None or comments is None:
+            continue  # 댓글 없으면 CSV 저장 안함
 
-        # article CSV 저장 (중복 방지)
+        # article CSV 저장
         df_article = pd.DataFrame([article])
         df_article.to_csv(
             articles_csv, mode='a', index=False,
@@ -135,12 +137,11 @@ async def scrape_comments_from_excel_parallel_to_csv(excel_path, articles_csv, c
         )
 
         # comments CSV 저장
-        if comments:
-            df_comments = pd.DataFrame(comments)
-            df_comments.to_csv(
-                comments_csv, mode='a', index=False,
-                header=not comments_csv.exists(), encoding="utf-8-sig"
-            )
+        df_comments = pd.DataFrame(comments)
+        df_comments.to_csv(
+            comments_csv, mode='a', index=False,
+            header=not comments_csv.exists(), encoding="utf-8-sig"
+        )
 
         print(f"✅ {article['news_id']} 처리 완료: 댓글 {len(comments)}개")
 
